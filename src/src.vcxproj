@@ -107,7 +107,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\vclib\SDL2-2.32.10\include;C:\vclib\SDL2_image-2.8.8\include;C:\vclib\glew-2.2.0\include\GL;C:\vclib\soil-master\include\SOIL;C:\vclib\SDL2_ttf-2.24.0\include;C:\vclib\rapidjson-1.1.0\include;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\vclib\spdlog-1.17.0\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\vclib\SDL2-2.32.10\include;C:\vclib\SDL2_image-2.8.8\include;C:\vclib\glew-2.2.0\include\GL;C:\vclib\soil-master\include\SOIL;C:\vclib\SDL2_ttf-2.24.0\include;C:\vclib\rapidjson-1.1.0\include;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\vclib\spdlog-1.17.0\include;C:\vclib\nlohmann</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -142,9 +142,13 @@
     <ClCompile Include="Math.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Config.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Math.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="config.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

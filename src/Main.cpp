@@ -19,6 +19,12 @@ int main()
 		LOG_ERROR("Failed to load texture: assets/hero.png");
 	}
 
+	// 例：プレイヤーのポインタは絶対にnullptrであってはならない
+	int* playerPtr = nullptr;
+
+	// これを実行すると、Criticalログが出て、プログラムが停止します
+	GAME_ASSERT(playerPtr != nullptr, "Player pointer cannot be null!");
+
 	LOG_INFO("--- Game Engine Closing ---");
 
 	return 0;

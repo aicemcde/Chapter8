@@ -19,3 +19,11 @@ private:
 #define LOG_WARN(...) Log::GetLogger()->warn(__VA_ARGS__)
 #define LOG_ERROR(...) Log::GetLogger()->error(__VA_ARGS__)
 #define LOG_CRITICAL(...) Log::GetLogger()->critical(__VA_ARGS__)
+
+#include <cassert>
+
+#define GAME_ASSERT(check, msg) \
+	if(!(check)) { \
+		LOG_CRITICAL("ASSERTION FAILED: {} (file : {}, line: {})", msg, __FILE__, __LINE__); \
+		assert(check); \
+	}
