@@ -1,31 +1,28 @@
 ﻿#include "Log.h"
+#include "Game.h"
+#include "Config.h"
 
-int main()
+int main(int argc, char** argv)
 {
 	Log::Init();
 
-	LOG_INFO("--- Game Engine Starting ---");
-
-	int playerHP = 100;
-	float x = 10.5f;
-	float y = 20.0f;
-
-	LOG_TRACE("Initialization complete");
-	LOG_INFO("Player HP: {}", playerHP);
-	LOG_WARN("Position warning: ({}, {})", x, y);
-	
-	bool failedToLoad = true;
-	if (failedToLoad) {
-		LOG_ERROR("Failed to load texture: assets/hero.png");
+	GameConfig config;
+	if (!LoadConfig("config.json", config))
+	{
+		LOG_ERROR("Failed to load config");
+		return 0;
 	}
 
-	// 例：プレイヤーのポインタは絶対にnullptrであってはならない
-	int* playerPtr = nullptr;
-
-	// これを実行すると、Criticalログが出て、プログラムが停止します
-	GAME_ASSERT(playerPtr != nullptr, "Player pointer cannot be null!");
-
-	LOG_INFO("--- Game Engine Closing ---");
-
+	Game game;
+	bool success = game.Initialize(config);
+	if (success)
+	{
+		game.RunLoop();
+	}
+	else
+	{
+		LOG_ERROR("Failed to initialize");
+	}
+	game.Shutdown();
 	return 0;
 }
