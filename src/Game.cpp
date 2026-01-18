@@ -16,6 +16,7 @@
 #include "AudioComponent.h"
 #include "MoveComponent.h"
 #include "Log.h"
+#include "InputSystem.h"
 
 
 Game* Game::sInstance = nullptr;
@@ -64,6 +65,8 @@ bool Game::Initialize(GameConfig& config)
 		return false;
 	}
 
+	mInputSystem = std::make_unique<InputSystem>(this);
+
 	LoadData();
 
 	mTicksCount = SDL_GetTicks();
@@ -97,6 +100,8 @@ void Game::RunLoop()
 
 void Game::ProcessInput()
 {
+	mInputSystem->PrepareForUpdate();
+
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
@@ -115,6 +120,9 @@ void Game::ProcessInput()
 			break;
 		}
 	}
+
+	mInputSystem->Update();
+	const InputState& state = mInputSystem->GetState();
 
 	const uint8_t* keyState = SDL_GetKeyboardState(NULL);
 	if (keyState[SDL_SCANCODE_ESCAPE])

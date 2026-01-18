@@ -99,7 +99,7 @@ bool Mesh::Load(const std::string& fileName, Renderer* renderer)
 
 		for (const auto& vert : vertsJson)
 		{
-			if (!vert.is_array() || vert.size() != 8)
+			if (!vert.is_array() || vert.size() != VERTICS_SIZE)
 			{
 				LOG_ERROR("Unexpected vertex format for {}", fileName);
 				return false;

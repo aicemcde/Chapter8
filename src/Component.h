@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "InputSystem.h"
 
 class Component
 {
@@ -8,7 +9,7 @@ public:
 	virtual ~Component()=default;
 
 	virtual void Update(float deltaTime);
-	virtual void ProcessInput(const uint8_t* keyState) {};
+	virtual void ProcessInput(const InputState& state) {};
 	virtual void OnUpdateWorldTransform(float deltaTime) {};
 	int GetUpdateOrder() const { return mUpdateOrder; }
 	class Actor* GetOwner() const { return mOwner; }

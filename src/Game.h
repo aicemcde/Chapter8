@@ -21,6 +21,7 @@ public:
 	static class ResourceManager* GetResourceInstance() { return sInstance->mResourceManager.get(); }
 	static class Renderer* GetRendererInstance() { return sInstance->mRenderer.get(); }
 	static class AudioSystem* GetAudioSystemInstance() { return sInstance->mAudioSystem.get(); }
+	static class InputSystem* GetInputSystemInstance() { return sInstance->mInputSystem.get(); }
 
 	class Scene* GetScene() const { return mScene.get(); }
 	class ResourceManager* GetResourceManager() const { return mResourceManager.get(); }
@@ -45,6 +46,7 @@ private:
 	std::unique_ptr<class ResourceManager> mResourceManager;
 	std::unique_ptr<class Renderer> mRenderer;
 	std::unique_ptr<class AudioSystem> mAudioSystem;
+	std::unique_ptr<class InputSystem> mInputSystem;
 
 	class CameraActor* mCameraActor;
 	SoundEvent mMusicEvent;

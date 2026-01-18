@@ -6,6 +6,7 @@
 #include <concepts>
 #include <algorithm>
 #include "Component.h"
+#include "InputSystem.h"
 
 class Actor
 {
@@ -47,8 +48,8 @@ public:
 	void UpdateComponents(float deltaTime);
 	virtual void UpdateActor(float deltaTime);
 
-	void ProcessInput(const uint8_t* keyState);
-	virtual void ActorInput(const uint8_t* keyState);
+	void ProcessInput(const InputState& state);
+	virtual void ActorInput(const InputState& state);
 
 	void ComputeWorldTransform(float deltaTime);
 
