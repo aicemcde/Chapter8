@@ -107,7 +107,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\vclib\SDL2-2.32.10\include;C:\vclib\SDL2_image-2.8.8\include;C:\vclib\glew-2.2.0\include\GL;C:\vclib\soil-master\include\SOIL;C:\vclib\SDL2_ttf-2.24.0\include;C:\vclib\rapidjson-1.1.0\include;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\vclib\spdlog-1.17.0\include;C:\vclib\nlohmann</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\vclib\SDL2-2.32.10\include;C:\vclib\SDL2_image-2.8.8\include;C:\vclib\glew-2.2.0\include\GL;C:\vclib\SDL2_ttf-2.24.0\include;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\inc;C:\vclib\spdlog-1.17.0\include;C:\vclib\nlohmann</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -117,7 +117,12 @@
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;glew32.lib;opengl32.lib;SDL2_ttf.lib;fmodstudioL64_vc.lib;fmodL64_vc.lib;fsbank64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "C:\vclib\glew-2.2.0\bin\Release\x64\glew32.dll" "$(OutDir)"</Command>
+      <Command>xcopy /y /d "C:\vclib\glew-2.2.0\bin\Release\x64\glew32.dll" "$(OutDir)"
+xcopy /y /d "C:\vclib\SDL2-2.32.10\lib\x64\SDL2.dll" "$(OutDir)"
+xcopy /y /d "C:\vclib\SDL2_ttf-2.24.0\lib\x64\SDL2_ttf.dll" "$(OutDir)"
+xcopy /y /d "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\lib\fmodstudioL64.dll" "$(OutDir)"
+xcopy /y /d "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\lib\fmodL64.dll" "$(OutDir)"
+xcopy /y /d "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\fsbank\lib\fsbank64.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -137,15 +142,60 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Actor.cpp" />
+    <ClCompile Include="AudioComponent.cpp" />
+    <ClCompile Include="AudioSystem.cpp" />
+    <ClCompile Include="CameraActor.cpp" />
+    <ClCompile Include="CircleComponent.cpp" />
+    <ClCompile Include="Component.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Math.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MeshComponent.cpp" />
+    <ClCompile Include="MoveComponent.cpp" />
+    <ClCompile Include="PlaneActor.cpp" />
+    <ClCompile Include="Random.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="SoundEvent.cpp" />
+    <ClCompile Include="SpriteComponent.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="VertexArray.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actor.h" />
+    <ClInclude Include="AudioComponent.h" />
+    <ClInclude Include="AudioSystem.h" />
+    <ClInclude Include="CameraActor.h" />
+    <ClInclude Include="CircleComponent.h" />
+    <ClInclude Include="Component.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="Delegate.h" />
+    <ClInclude Include="DelegateHandle.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="InputSystem.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Math.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MeshComponent.h" />
+    <ClInclude Include="MoveComponent.h" />
+    <ClInclude Include="PlaneActor.h" />
+    <ClInclude Include="Random.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="SoundEvent.h" />
+    <ClInclude Include="SpriteComponent.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="StructData.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="VertexArray.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config.json" />
