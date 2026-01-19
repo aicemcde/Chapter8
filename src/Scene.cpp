@@ -10,12 +10,12 @@ Scene::Scene(Game* game)
 
 }
 
-void Scene::ProcessInput(const uint8_t* keyState)
+void Scene::ProcessInput(const InputState& state)
 {
 	mUpdatingActors = true;
 	for (auto& actor : mActors)
 	{
-		actor->ProcessInput(keyState);
+		actor->ProcessInput(state);
 	}
 	mUpdatingActors = false;
 }
@@ -48,18 +48,6 @@ void Scene::Unload()
 	mActors.clear();
 }
 
-void Scene::AddActor(std::unique_ptr<Actor> actor)
-{
-	if (mUpdatingActors)
-	{
-		mPendingActors.emplace_back(std::move(actor));
-	}
-	else
-	{
-		mActors.emplace_back(std::move(actor));
-	}
-}
-
 void Scene::RemoveActor(Actor* actor)
 {
 	auto iter = std::find_if(mPendingActors.begin(), mPendingActors.end(),
@@ -87,14 +75,4 @@ void Scene::RemoveActor(Actor* actor)
 			mActors.pop_back();
 		}
 	}
-}
-
-void Scene::InputActor(const uint8_t* keyState)
-{
-	mUpdatingActors = true;
-	for (auto& actor : mActors)
-	{
-		actor->ProcessInput(keyState);
-	}
-	mUpdatingActors = false;
 }

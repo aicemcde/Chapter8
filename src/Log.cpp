@@ -14,12 +14,12 @@ void Log::Init()
 	std::vector<spdlog::sink_ptr> logSinks;
 
 	auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-	consoleSink->set_pattern("%^[%T] [%l] %n: %v%$");
+	consoleSink->set_pattern("%^[%T] [%l] [%s:%#] %n: %v%$");
 	consoleSink->set_level(spdlog::level::warn);
 	logSinks.emplace_back(consoleSink);
 
-	auto fileSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("logs/engine.log", MAX_FILE_SIZE, MAX_FILE_NUM);
-	fileSink->set_pattern("[%T] [%l] %n: %v");
+	auto fileSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("logs/engine.log", MAX_FILE_SIZE, MAX_FILE_NUM, true);
+	fileSink->set_pattern("[%T] [%l] [%s:%#] %n: %v");
 	fileSink->set_level(spdlog::level::trace);
 	logSinks.emplace_back(fileSink);
 

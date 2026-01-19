@@ -4,7 +4,8 @@
 #include <SDL_mouse.h>
 #include "Math.h"
 #include <SDL_events.h>
-#include <SDL_gamecontroller.h>
+#include <vector>
+#include <map>
 
 enum ButtonState
 {
@@ -40,8 +41,8 @@ public:
 private:
 	Vector2 mMousePos;
 	Vector2 mScrollWheel;
-	Uint32 mCurrButtons;
-	Uint32 mPrevButtons;
+	Uint32 mCurrButtons = 0;
+	Uint32 mPrevButtons = 0;
 	bool mIsRelative = false;
 };
 
@@ -49,10 +50,20 @@ class ControllerState
 {
 public:
 	friend class InputSystem;
+
+	float GetLeftTrigger() const { return mLeftTrigger; }
+	float GetRightTrigger() const { return mRightTrigger; }
+
+	const Vector2& GetLeftStick() const { return mLeftStick; }
+	const Vector2& GetRightStick() const { return mRightStick; }
 private:
 	Uint8 mCurrButtons[SDL_CONTROLLER_BUTTON_MAX];
 	Uint8 mPrevButtons[SDL_CONTROLLER_BUTTON_MAX];
 	bool mIsConnected;
+	float mLeftTrigger;
+	float mRightTrigger;
+	Vector2 mLeftStick;
+	Vector2 mRightStick;
 };
 
 struct InputState
@@ -78,8 +89,13 @@ public:
 	const InputState& GetState() const { return mState; }
 	
 	void SetRelativeMouseMode(bool value);
+
+	float Filter1D(int input);
+	const Vector2& Filter2D(int inputX, int inputY);
 private:
 	InputState mState;
 	class Game* mGame;
 	SDL_GameController* mController;
+	std::vector<SDL_GameController*> mControllers;
+	std::map<int, SDL_JoystickID> mJoystickIDs;
 };

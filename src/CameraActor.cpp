@@ -40,23 +40,23 @@ void CameraActor::UpdateActor(float deltaTime)
 	Game::GetRendererInstance()->SetViewMatrix(view);
 }
 
-void CameraActor::ActorInput(const uint8_t* keys)
+void CameraActor::ActorInput(const InputState& state)
 {
 	float forwardSpeed = 0.0f;
 	float angularSpeed = 0.0f;
-	if (keys[SDL_SCANCODE_W])
+	if (state.Keyboard.GetKeyState(SDL_SCANCODE_W))
 	{
 		forwardSpeed += 300.0f;
 	}
-	if (keys[SDL_SCANCODE_S])
+	if (state.Keyboard.GetKeyState(SDL_SCANCODE_S))
 	{
 		forwardSpeed -= 300.0f;
 	}
-	if (keys[SDL_SCANCODE_A])
+	if (state.Keyboard.GetKeyState(SDL_SCANCODE_A))
 	{
 		angularSpeed -= Math::TwoPi;
 	}
-	if (keys[SDL_SCANCODE_D])
+	if (state.Keyboard.GetKeyState(SDL_SCANCODE_D))
 	{
 		angularSpeed += Math::TwoPi;
 	}

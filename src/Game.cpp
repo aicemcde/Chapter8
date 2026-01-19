@@ -40,6 +40,7 @@ Game::~Game()
 
 bool Game::Initialize(GameConfig& config)
 {
+	Log::Info("start initialize");
 	int sdlResult = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER);
 	if (sdlResult != 0)
 	{
@@ -66,6 +67,7 @@ bool Game::Initialize(GameConfig& config)
 	}
 
 	mInputSystem = std::make_unique<InputSystem>(this);
+	mInputSystem->Initialize();
 
 	LoadData();
 
@@ -78,6 +80,7 @@ bool Game::Initialize(GameConfig& config)
 void Game::Shutdown()
 {
 	UnloadData();
+	mInputSystem->Shutdown();
 	mAudioSystem->Shutdown();
 	SDL_Quit();
 }
@@ -130,7 +133,7 @@ void Game::ProcessInput()
 		mIsRunning = false;
 	}
 
-	mScene->ProcessInput(keyState);
+	mScene->ProcessInput(state);
 
 }
 
@@ -211,6 +214,7 @@ void Game::GenerateOutput()
 
 void Game::LoadData()
 {
+	LOG_INFO("Start to loadData at Game class");
 	//Actor
 	Actor* a = mScene->CreateActor<Actor>(this);
 	a->SetPosition(Vector3(200.0f, 75.0f, 0.0f));
