@@ -40,7 +40,7 @@ Game::~Game()
 
 bool Game::Initialize(GameConfig& config)
 {
-	int sdlResult = SDL_Init(SDL_INIT_VIDEO);
+	int sdlResult = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER);
 	if (sdlResult != 0)
 	{
 		LOG_CRITICAL("SDL could not initialize!SDL_Error : {}", SDL_GetError());
