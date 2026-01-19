@@ -71,9 +71,39 @@ ButtonState MouseState::GetButtonState(int button) const
 	}
 }
 
+bool ControllerState::GetKeyValue(SDL_GameControllerButton button) const
+{
+	return mCurrButtons[button] == 1;
+}
+
+ButtonState ControllerState::GetKeyState(SDL_GameControllerButton button) const
+{
+	if (mPrevButtons[button] == 0)
+	{
+		if (mCurrButtons[button] == 0)
+		{
+			return ENone;
+		}
+		else
+		{
+			return EPressed;
+		}
+	}
+	else
+	{
+		if (mCurrButtons[button] == 0)
+		{
+			return EReleased;
+		}
+		else
+		{
+			return EHeld;
+		}
+	}
+}
+
 InputSystem::InputSystem(Game* game)
 	: mGame(game)
-	,mController(nullptr)
 {
 
 }
@@ -85,56 +115,41 @@ InputSystem::~InputSystem()
 
 bool InputSystem::Initialize()
 {
-	LOG_INFO("InputSystem start to initialize");
+	Log::Info("InputSystem start to initialize");
 
 	mState.Keyboard.mCurrState = SDL_GetKeyboardState(NULL);
 	memset(mState.Keyboard.mPrevState, 0, SDL_NUM_SCANCODES);
 	
+	for (int i = 0; i < MAX_ACTIVE_PLAYER; ++i)
+	{
+		mControllerHandlers[i] = nullptr;
+		memset(mState.Controller[i].mCurrButtons, 0, SDL_CONTROLLER_BUTTON_MAX);
+		memset(mState.Controller[i].mPrevButtons, 0, SDL_CONTROLLER_BUTTON_MAX);
+	}
+
 	for (int i = 0; i < SDL_NumJoysticks(); ++i)
 	{
 		if (SDL_IsGameController(i))
 		{
-			SDL_GameController* controller = SDL_GameControllerOpen(i);
-			if (!controller)
-			{
-				LOG_WARN("Game Controller {} could not open: {}", i, SDL_GetError());
-			}
-			else
-			{
-				SDL_Joystick* joystick = SDL_GameControllerGetJoystick(controller);
-				SDL_JoystickID joystickID = SDL_JoystickInstanceID(joystick);
-				int newPlayerID = static_cast<float>(mControllers.size());
-				mJoystickIDs[joystickID] = newPlayerID;
-			}
-			mControllers.emplace_back(controller);
+			OnControllerConnected(i);
 		}
 	}
-	
-	mState.Controller.mIsConnected = !mControllers.empty();
-	if (mState.Controller.mIsConnected)
-	{
-		mController = mControllers[0];
-		Log::Info("Game controller is connected");
-	}
-	else
-	{
-		LOG_INFO("Game controller is not connected");
-	}
-	memset(mState.Controller.mCurrButtons, 0, SDL_CONTROLLER_BUTTON_MAX);
-	memset(mState.Controller.mPrevButtons, 0, SDL_CONTROLLER_BUTTON_MAX);
 
-	LOG_INFO("InputSystem complete to initialize");
+	Log::Info("InputSystem complete to initialize");
 	return true;
 }
 
 void InputSystem::Shutdown()
 {
-	for (SDL_GameController* controller : mControllers)
+	for (int i = 0; i < MAX_ACTIVE_PLAYER; ++i)
 	{
-		SDL_GameControllerClose(controller);
+		if (mControllerHandlers[i])
+		{
+			SDL_GameControllerClose(mControllerHandlers[i]);
+			mControllerHandlers[i] = nullptr;
+		}
 	}
-	mControllers.clear();
-	mJoystickIDs.clear();
+	mJoystickID_To_ControllerPlayerID_map.clear();
 }
 
 void InputSystem::PrepareForUpdate()
@@ -144,7 +159,13 @@ void InputSystem::PrepareForUpdate()
 		mState.Keyboard.mCurrState,
 		SDL_NUM_SCANCODES
 	);
-	memcpy(mState.Controller.mPrevButtons, mState.Controller.mCurrButtons, SDL_CONTROLLER_BUTTON_MAX);
+	for (int i = 0; i < MAX_ACTIVE_PLAYER; ++i)
+	{
+		if (mState.Controller[i].mIsConnected)
+		{
+			memcpy(mState.Controller[i].mPrevButtons, mState.Controller[i].mCurrButtons, SDL_CONTROLLER_BUTTON_MAX);
+		}
+	}
 
 	mState.Mouse.mPrevButtons = mState.Mouse.mCurrButtons;
 
@@ -165,26 +186,36 @@ void InputSystem::Update()
 	mState.Mouse.mMousePos.x = static_cast<float>(x);
 	mState.Mouse.mMousePos.y = static_cast<float>(y);
 
-	if (!mController)
+	for (int i = 0; i < MAX_ACTIVE_PLAYER; ++i)
 	{
-		return;
+		if (mState.Controller[i].mIsConnected)
+		{
+			SDL_GameController* handle = mControllerHandlers[i];
+			ControllerState& state = mState.Controller[i];
+			
+			if (!handle)
+			{
+				LOG_WARN("mControllerHandler is not registered: {}", i);
+				continue;
+			}
+
+			for (int btn = 0; btn < SDL_CONTROLLER_BUTTON_MAX; ++btn)
+			{
+				state.mCurrButtons[btn] = SDL_GameControllerGetButton(handle, SDL_GameControllerButton(btn));
+			}
+
+			state.mLeftTrigger = Filter1D(SDL_GameControllerGetAxis(handle, SDL_CONTROLLER_AXIS_TRIGGERLEFT));
+			state.mRightTrigger = Filter1D(SDL_GameControllerGetAxis(handle, SDL_CONTROLLER_AXIS_TRIGGERRIGHT));
+
+			x = SDL_GameControllerGetAxis(handle, SDL_CONTROLLER_AXIS_LEFTX);
+			y = SDL_GameControllerGetAxis(handle, SDL_CONTROLLER_AXIS_LEFTY);
+			state.mLeftStick = Filter2D(x, y);
+
+			x = SDL_GameControllerGetAxis(handle, SDL_CONTROLLER_AXIS_RIGHTX);
+			y = SDL_GameControllerGetAxis(handle, SDL_CONTROLLER_AXIS_RIGHTY);
+			state.mRightStick = Filter2D(x, y);
+		}
 	}
-	for (int i = 0; i < SDL_CONTROLLER_BUTTON_MAX; ++i)
-	{
-		mState.Controller.mCurrButtons[i] = SDL_GameControllerGetButton(mController, SDL_GameControllerButton(i));
-	}
-
-	mState.Controller.mLeftTrigger = Filter1D(SDL_GameControllerGetAxis(mController, SDL_CONTROLLER_AXIS_TRIGGERLEFT));
-	mState.Controller.mRightTrigger = Filter1D(SDL_GameControllerGetAxis(mController, SDL_CONTROLLER_AXIS_TRIGGERRIGHT));
-
-	x = SDL_GameControllerGetAxis(mController, SDL_CONTROLLER_AXIS_LEFTX);
-	y = SDL_GameControllerGetAxis(mController, SDL_CONTROLLER_AXIS_LEFTY);
-	mState.Controller.mLeftStick = Filter2D(x, y);
-
-	x = SDL_GameControllerGetAxis(mController, SDL_CONTROLLER_AXIS_RIGHTX);
-	y = SDL_GameControllerGetAxis(mController, SDL_CONTROLLER_AXIS_RIGHTY);
-	mState.Controller.mRightStick = Filter2D(x, y);
-
 }
 
 void InputSystem::ProcessEvent(SDL_Event& event)
@@ -198,32 +229,26 @@ void InputSystem::ProcessEvent(SDL_Event& event)
 			static_cast<float>(event.wheel.y)
 		);
 		break;
-	case SDL_CONTROLLERBUTTONDOWN: {
-		SDL_JoystickID id = event.cbutton.which;
-		SDL_Joystick* currJoystick = SDL_GameControllerGetJoystick(mController);
-		if (currJoystick && SDL_JoystickInstanceID(currJoystick) != id)
-		{
-			mController = SDL_GameControllerFromInstanceID(id);
-			LOG_INFO("Game controller is changed");
-		}
-		break;
-	}
 
-	case SDL_CONTROLLERDEVICEADDED: {
-		int deviceIndex = event.cdevice.which;
-		SDL_GameController* newController = SDL_GameControllerOpen(deviceIndex);
-		if (newController)
-		{
-			SDL_Joystick* joystick = SDL_GameControllerGetJoystick(newController);
-			SDL_JoystickID joystickID = SDL_JoystickInstanceID(joystick);
-			int newPlayerID = mControllers.size();
-			mJoystickIDs[joystickID] = newPlayerID;
-		}
+	case SDL_CONTROLLERDEVICEADDED:
+		OnControllerConnected(event.cdevice.which);
 		break;
-	}
+	case SDL_CONTROLLERDEVICEREMOVED:
+		OnControllerDisconnected(event.cdevice.which);
+		break;
 	default:
 		break;
 	}
+}
+
+const ControllerState& InputSystem::GetControllerState(int playerIndex) const
+{
+	if (playerIndex < 0 || playerIndex >= MAX_ACTIVE_PLAYER)
+	{
+		Log::Warn("GetControllerState : playerIndex is too large");
+		return mState.Controller[0];
+	}
+	return mState.Controller[playerIndex];
 }
 
 void InputSystem::SetRelativeMouseMode(bool value)
@@ -267,4 +292,64 @@ const Vector2& InputSystem::Filter2D(int inputX, int inputY)
 		dir *= f / length;
 	}
 	return dir;
+}
+
+int InputSystem::FindFreePlayerSlot() const
+{
+	for (int i = 0; i < MAX_ACTIVE_PLAYER; ++i)
+	{
+		if (mControllerHandlers[i] == nullptr)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+void InputSystem::OnControllerConnected(int deviceIndex)
+{
+	int playerIndex = FindFreePlayerSlot();
+	if (playerIndex == -1)
+	{
+		LOG_WARN("Max players reached, ignoring controller index: {}", deviceIndex);
+		return;
+	}
+
+	SDL_GameController* controller = SDL_GameControllerOpen(deviceIndex);
+	if (!controller)
+	{
+		LOG_WARN("Failed to open controller: {}", SDL_GetError());
+		return;
+	}
+
+	SDL_Joystick* joystick = SDL_GameControllerGetJoystick(controller);
+	SDL_JoystickID joystickID = SDL_JoystickInstanceID(joystick);
+	
+	mControllerHandlers[playerIndex] = controller;
+	mJoystickID_To_ControllerPlayerID_map[joystickID] = playerIndex;
+
+	mState.Controller[playerIndex].mIsConnected = true;
+
+	LOG_INFO("Controller connected: Player {}", playerIndex);
+}
+
+void InputSystem::OnControllerDisconnected(SDL_JoystickID id)
+{
+	auto iter = mJoystickID_To_ControllerPlayerID_map.find(id);
+	if (iter != mJoystickID_To_ControllerPlayerID_map.end())
+	{
+		int playerIndex = iter->second;
+
+		if (mControllerHandlers[playerIndex])
+		{
+			SDL_GameControllerClose(mControllerHandlers[playerIndex]);
+			mControllerHandlers[playerIndex] = nullptr;
+		}
+
+		mState.Controller[playerIndex].mIsConnected = false;
+
+		mJoystickID_To_ControllerPlayerID_map.erase(iter);
+
+		LOG_INFO("Controller disconnected: Player {}", playerIndex);
+	}
 }

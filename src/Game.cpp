@@ -79,6 +79,7 @@ bool Game::Initialize(GameConfig& config)
 
 void Game::Shutdown()
 {
+	Log::Info("game shutdown");
 	UnloadData();
 	mInputSystem->Shutdown();
 	mAudioSystem->Shutdown();
@@ -214,7 +215,7 @@ void Game::GenerateOutput()
 
 void Game::LoadData()
 {
-	LOG_INFO("Start to loadData at Game class");
+	Log::Info("Start to loadData at Game class");
 	//Actor
 	Actor* a = mScene->CreateActor<Actor>(this);
 	a->SetPosition(Vector3(200.0f, 75.0f, 0.0f));
@@ -307,6 +308,7 @@ void Game::LoadData()
 
 void Game::UnloadData()
 {
+	Log::Info("start to unload data");
 	mRenderer->UnloadData();
 	mScene->Unload();
 }

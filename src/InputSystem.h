@@ -5,7 +5,10 @@
 #include "Math.h"
 #include <SDL_events.h>
 #include <vector>
-#include <map>
+#include <unordered_map>
+#include <array>
+
+const int MAX_ACTIVE_PLAYER = 4;
 
 enum ButtonState
 {
@@ -51,6 +54,9 @@ class ControllerState
 public:
 	friend class InputSystem;
 
+	bool GetKeyValue(SDL_GameControllerButton button) const;
+	ButtonState GetKeyState(SDL_GameControllerButton button) const;
+
 	float GetLeftTrigger() const { return mLeftTrigger; }
 	float GetRightTrigger() const { return mRightTrigger; }
 
@@ -70,7 +76,7 @@ struct InputState
 {
 	KeyboardState Keyboard;
 	MouseState Mouse;
-	ControllerState Controller;
+	std::array<ControllerState, MAX_ACTIVE_PLAYER> Controller;
 };
 
 class InputSystem
@@ -87,15 +93,19 @@ public:
 	void ProcessEvent(SDL_Event& event);
 
 	const InputState& GetState() const { return mState; }
+	const ControllerState& GetControllerState(int playerIndex) const;
 	
 	void SetRelativeMouseMode(bool value);
 
 	float Filter1D(int input);
 	const Vector2& Filter2D(int inputX, int inputY);
 private:
+	int FindFreePlayerSlot() const;
+	void OnControllerConnected(int deviceIndex);
+	void OnControllerDisconnected(SDL_JoystickID id);
+
 	InputState mState;
 	class Game* mGame;
-	SDL_GameController* mController;
-	std::vector<SDL_GameController*> mControllers;
-	std::map<int, SDL_JoystickID> mJoystickIDs;
+	std::array<SDL_GameController*, MAX_ACTIVE_PLAYER> mControllerHandlers = { nullptr };
+	std::unordered_map<SDL_JoystickID, int> mJoystickID_To_ControllerPlayerID_map;
 };
