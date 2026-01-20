@@ -44,7 +44,7 @@ void CameraActor::ActorInput(const InputState& state)
 {
 	float forwardSpeed = 0.0f;
 	float angularSpeed = 0.0f;
-	if (state.Keyboard.GetKeyState(SDL_SCANCODE_W))
+	if (mGame->GetInputSystemInstance()->GetMappedButtonState("Move_Forward"))
 	{
 		forwardSpeed += 300.0f;
 	}

@@ -135,6 +135,20 @@ bool InputSystem::Initialize()
 		}
 	}
 
+	InputActionConfig config;
+	if (LoadConfig("keybinds.json", config))
+	{
+		mActionMap = config.actions;
+
+		Log::Info("Keybinds loaded");
+	}
+	else
+	{
+		Log::Error("Failed to load keybinds.");
+	}
+
+	
+
 	Log::Info("InputSystem complete to initialize");
 	return true;
 }
@@ -351,5 +365,46 @@ void InputSystem::OnControllerDisconnected(SDL_JoystickID id)
 		mJoystickID_To_ControllerPlayerID_map.erase(iter);
 
 		LOG_INFO("Controller disconnected: Player {}", playerIndex);
+	}
+}
+
+ButtonState InputSystem::GetMappedButtonState(const std::string& actionName)
+{
+	auto iter = mActionMap.find(actionName);
+	if (iter == mActionMap.end())
+	{
+		LOG_WARN("Action is not found: {}", actionName);
+		return ENone;
+	}
+
+	for (const auto& action : iter->second)
+	{
+		switch (action.deviceType)
+		{
+		case InputDeviceType::Keyboard:
+		{
+			SDL_Scancode key = static_cast<SDL_Scancode>(action.code);
+			return mState.Keyboard.GetKeyState(key);
+		}
+		case InputDeviceType::Mouse:
+		{
+			int button = action.code;
+			return mState.Mouse.GetButtonState(button);
+		}
+		case InputDeviceType::Controller:
+		{
+			SDL_GameControllerButton button = static_cast<SDL_GameControllerButton>(action.code);
+			int idx = action.playerIndex;
+
+			if (0 < idx && idx  < MAX_ACTIVE_PLAYER)
+			{
+				return mState.Controller[idx].GetKeyState(button);
+			}
+
+			return ENone;
+		}
+		default:
+			break;
+		}
 	}
 }

@@ -7,6 +7,8 @@
 #include <vector>
 #include <unordered_map>
 #include <array>
+#include <string>
+#include "Config.h"
 
 const int MAX_ACTIVE_PLAYER = 4;
 
@@ -99,6 +101,8 @@ public:
 
 	float Filter1D(int input);
 	const Vector2& Filter2D(int inputX, int inputY);
+
+	ButtonState GetMappedButtonState(const std::string& actionName);
 private:
 	int FindFreePlayerSlot() const;
 	void OnControllerConnected(int deviceIndex);
@@ -108,4 +112,5 @@ private:
 	class Game* mGame;
 	std::array<SDL_GameController*, MAX_ACTIVE_PLAYER> mControllerHandlers = { nullptr };
 	std::unordered_map<SDL_JoystickID, int> mJoystickID_To_ControllerPlayerID_map;
+	std::unordered_map<std::string, std::vector<InputActions>> mActionMap;
 };

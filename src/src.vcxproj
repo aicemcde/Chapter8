@@ -199,6 +199,7 @@ xcopy /y /d "C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api
   </ItemGroup>
   <ItemGroup>
     <None Include="config.json" />
+    <None Include="keybinds.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
